@@ -16,6 +16,29 @@ A sophisticated 3D audio visualizer built with **React**, **Three.js (React Thre
 
 ## Quick Start
 
+<!-- one-command-install -->
+> **One-command install** — clone, configure, and run in a single step:
+>
+> ```bash
+> curl -fsSL https://raw.githubusercontent.com/jasperan/3d-audio/main/install.sh | bash
+> ```
+>
+> <details><summary>Advanced options</summary>
+>
+> Override install location:
+> ```bash
+> PROJECT_DIR=/opt/myapp curl -fsSL https://raw.githubusercontent.com/jasperan/3d-audio/main/install.sh | bash
+> ```
+>
+> Or install manually:
+> ```bash
+> git clone https://github.com/jasperan/3d-audio.git
+> cd 3d-audio
+> # See below for setup instructions
+> ```
+> </details>
+
+
 1. Install dependencies:
    ```bash
    npm install
@@ -34,7 +57,7 @@ Automated testing was performed to verify the end-to-end functionality of the sy
 ### Test Protocol
 - **Environment**: Linux, Chrome (Headless/Automated)
 - **Audio Source**: `ana_vaporeto_queen_v5.mp3` (aliased as `/test.mp3`)
-- **Action**: 
+- **Action**:
   1. Navigate to application root.
   2. Trigger "LOAD TEST" button.
   3. Wait 10 seconds for audio buffer to fill and WebGL context to stabilize.
