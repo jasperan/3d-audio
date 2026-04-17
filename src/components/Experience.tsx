@@ -2,8 +2,13 @@ import { OrbitControls, Box, Grid } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
 import { EffectComposer, Bloom } from '@react-three/postprocessing';
 import { TimbreCloud } from './TimbreCloud';
+import type { AudioFeatures } from '../hooks/useAudioAnalyzer';
 
-export const Experience = ({ features }: { features: any }) => {
+interface ExperienceProps {
+    features: AudioFeatures | null;
+}
+
+export const Experience = ({ features }: ExperienceProps) => {
     return (
         <Canvas
             camera={{ position: [15, 10, 15], fov: 45 }}
@@ -16,7 +21,6 @@ export const Experience = ({ features }: { features: any }) => {
 
             <TimbreCloud features={features} />
 
-            {/* Visual Reference Grid */}
             <Grid
                 args={[20, 20]}
                 sectionColor="#202020"
@@ -24,12 +28,10 @@ export const Experience = ({ features }: { features: any }) => {
                 position={[0, -5, 0]}
             />
 
-            {/* Center Marker */}
             <Box args={[1, 1, 1]} position={[0, 0, 0]}>
-                <meshStandardMaterial color={features ? "hotpink" : "gray"} wireframe />
+                <meshStandardMaterial color={features ? 'hotpink' : 'gray'} wireframe />
             </Box>
 
-            {/* Post Processing */}
             <EffectComposer>
                 <Bloom luminanceThreshold={0.5} intensity={1.5} radius={0.8} />
             </EffectComposer>

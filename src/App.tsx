@@ -1,12 +1,18 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { Experience } from './components/Experience';
 import { Overlay } from './components/Overlay';
 import { useAudioAnalyzer } from './hooks/useAudioAnalyzer';
 
 function App() {
   const [audioFile, setAudioFile] = useState<File | null>(null);
+  const [audioEl, setAudioEl] = useState<HTMLAudioElement | null>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
-  const features = useAudioAnalyzer(audioRef.current, !!audioFile);
+  const features = useAudioAnalyzer(audioEl, !!audioFile);
+
+  const setAudioRef = useCallback((node: HTMLAudioElement | null) => {
+    audioRef.current = node;
+    setAudioEl(node);
+  }, []);
 
   const handleFileChange = (file: File) => {
     setAudioFile(file);
@@ -22,6 +28,7 @@ function App() {
       <Overlay
         onFileChange={handleFileChange}
         audioRef={audioRef}
+        setAudioRef={setAudioRef}
         features={features}
       />
     </div>

@@ -1,22 +1,21 @@
-import React from 'react';
+import type { ChangeEvent, FC, RefObject } from 'react';
 import type { AudioFeatures } from '../hooks/useAudioAnalyzer';
 
 interface OverlayProps {
     onFileChange: (file: File) => void;
-    audioRef: React.RefObject<HTMLAudioElement | null>;
+    audioRef: RefObject<HTMLAudioElement | null>;
+    setAudioRef: (node: HTMLAudioElement | null) => void;
     features: AudioFeatures | null;
 }
 
-export const Overlay: React.FC<OverlayProps> = ({ onFileChange, audioRef, features }) => {
-    const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            onFileChange(e.target.files[0]);
-        }
+export const Overlay: FC<OverlayProps> = ({ onFileChange, audioRef, setAudioRef, features }) => {
+    const handleUpload = (e: ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) onFileChange(file);
     };
 
     return (
         <div className="absolute top-0 left-0 w-full h-full pointer-events-none z-10 flex flex-col justify-between p-8 text-white">
-            {/* Header */}
             <div className="pointer-events-auto">
                 <h1 className="text-4xl font-bold tracking-tighter mb-2 font-mono text-neon-blue">
                     TIMBRE_SPACE_VISUALIZER
@@ -31,7 +30,7 @@ export const Overlay: React.FC<OverlayProps> = ({ onFileChange, audioRef, featur
                     <button
                         onClick={() => {
                             if (audioRef.current) {
-                                audioRef.current.src = "/test.mp3";
+                                audioRef.current.src = '/test.mp3';
                                 audioRef.current.play();
                             }
                         }}
@@ -39,11 +38,10 @@ export const Overlay: React.FC<OverlayProps> = ({ onFileChange, audioRef, featur
                     >
                         LOAD TEST
                     </button>
-                    <audio ref={audioRef} controls className="w-64 accent-neon-blue" />
+                    <audio ref={setAudioRef} controls className="w-64 accent-neon-blue" />
                 </div>
             </div>
 
-            {/* Debug Info */}
             <div className="pointer-events-auto bg-black/60 p-4 rounded border border-gray-800 font-mono text-xs w-64 backdrop-blur-md">
                 <h3 className="text-neon-pink mb-2 border-b border-gray-700 pb-1">REAL-TIME DATA</h3>
                 {features ? (

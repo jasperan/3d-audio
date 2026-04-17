@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import Meyda from 'meyda';
+import type { MeydaAnalyzer } from 'meyda/dist/esm/meyda-wa';
 
 export interface AudioFeatures {
     spectralCentroid: number;
@@ -9,12 +10,19 @@ export interface AudioFeatures {
     mfcc: number[];
 }
 
+type AudioContextConstructor = typeof AudioContext;
+interface WindowWithWebkitAudio extends Window {
+    webkitAudioContext?: AudioContextConstructor;
+}
+
+const FEATURES = ['spectralCentroid', 'spectralSpread', 'spectralFlux', 'rms', 'mfcc'] as const;
+
 export const useAudioAnalyzer = (
     audioElement: HTMLMediaElement | null,
     enabled: boolean
 ) => {
     const [features, setFeatures] = useState<AudioFeatures | null>(null);
-    const analyzerRef = useRef<any>(null);
+    const analyzerRef = useRef<MeydaAnalyzer | null>(null);
     const audioContextRef = useRef<AudioContext | null>(null);
     const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
     const requestRef = useRef<number | undefined>(undefined);
@@ -23,22 +31,24 @@ export const useAudioAnalyzer = (
         if (!audioElement || !enabled) return;
 
         if (!audioContextRef.current) {
-            audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+            const Ctor = window.AudioContext ?? (window as WindowWithWebkitAudio).webkitAudioContext;
+            if (!Ctor) return;
+            audioContextRef.current = new Ctor();
         }
         const ctx = audioContextRef.current;
 
-        // Resume context if suspended (browser autoplay policy)
+        // Browser autoplay policy: resume the context on user gesture.
         if (ctx.state === 'suspended') {
             ctx.resume();
         }
 
         if (!sourceRef.current) {
-            // Double check not to create multiple sources for same element to avoid error
+            // createMediaElementSource throws InvalidStateError if the element already has a source.
             try {
                 sourceRef.current = ctx.createMediaElementSource(audioElement);
                 sourceRef.current.connect(ctx.destination);
             } catch (e) {
-                console.warn("Source already connected", e);
+                console.warn('Source already connected', e);
             }
         }
         const source = sourceRef.current;
@@ -46,27 +56,22 @@ export const useAudioAnalyzer = (
         if (source && !analyzerRef.current) {
             analyzerRef.current = Meyda.createMeydaAnalyzer({
                 audioContext: ctx,
-                source: source,
+                source,
                 bufferSize: 512,
-                featureExtractors: [
-                    'spectralCentroid',
-                    'spectralSpread',
-                    'spectralFlux',
-                    'rms',
-                    'mfcc'
-                ],
+                featureExtractors: [...FEATURES],
                 callback: () => {
-                    // We'll pull data in the loop instead of callback to sync with frame
-                }
+                    // Values are pulled in the rAF tick below to sync with the render frame.
+                },
             });
             analyzerRef.current.start();
         }
 
         const tick = () => {
-            if (analyzerRef.current) {
-                const rawFeatures = analyzerRef.current.get(['spectralCentroid', 'spectralSpread', 'spectralFlux', 'rms', 'mfcc']);
-                if (rawFeatures) {
-                    setFeatures(rawFeatures as AudioFeatures);
+            const analyzer = analyzerRef.current;
+            if (analyzer) {
+                const raw = analyzer.get([...FEATURES]);
+                if (raw) {
+                    setFeatures(raw as AudioFeatures);
                 }
             }
             requestRef.current = requestAnimationFrame(tick);
@@ -77,7 +82,7 @@ export const useAudioAnalyzer = (
         return () => {
             if (requestRef.current) cancelAnimationFrame(requestRef.current);
             if (analyzerRef.current) analyzerRef.current.stop();
-        }
+        };
     }, [audioElement, enabled]);
 
     return features;
