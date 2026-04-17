@@ -20,7 +20,7 @@ A sophisticated 3D audio visualizer built with **React**, **Three.js (React Thre
 ## Quick Start
 
 <!-- one-command-install -->
-> **One-command install** — clone, configure, and run in a single step:
+> **One-command install**: clone, configure, and run in a single step.
 >
 > ```bash
 > curl -fsSL https://raw.githubusercontent.com/jasperan/3d-audio/main/install.sh | bash

@@ -47,3 +47,11 @@ docs/*.md
 *_FEATURES.md
 *_ENHANCEMENTS.md
 *_REPORT.md
+
+# Agent/skill directories (local-only, never commit)
+.agents/
+.claude/
+.crush/
+.openhands/
+.serena/
+content/
