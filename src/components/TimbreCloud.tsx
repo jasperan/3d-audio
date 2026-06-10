@@ -16,16 +16,19 @@ const DECAY = 0.95;
 
 export const TimbreCloud = ({ features }: TimbreCloudProps) => {
     const meshRef = useRef<THREE.InstancedMesh>(null);
-    const lineRef = useRef<THREE.LineSegments>(null);
 
     // History buffer laid out as [x0, y0, z0, x1, y1, z1, ...].
     const history = useMemo(() => new Float32Array(HISTORY_SIZE * 3), []);
     const dummy = useMemo(() => new THREE.Object3D(), []);
 
-    const lineGeo = useMemo(() => {
+    // Build the trail line imperatively so its geometry buffer can be mutated
+    // in place each frame. (`<line>` is valid at runtime but absent from R3F's
+    // JSX intrinsic types, so a primitive avoids a type suppression.)
+    const line = useMemo(() => {
         const geo = new THREE.BufferGeometry();
         geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(HISTORY_SIZE * 3), 3));
-        return geo;
+        const material = new THREE.LineBasicMaterial({ color: '#ff00ff', transparent: true, opacity: 0.5 });
+        return new THREE.Line(geo, material);
     }, []);
 
     // history is a pre-allocated ring buffer intentionally mutated each frame.
@@ -63,11 +66,9 @@ export const TimbreCloud = ({ features }: TimbreCloudProps) => {
         }
         meshRef.current.instanceMatrix.needsUpdate = true;
 
-        if (lineRef.current) {
-            const pos = lineRef.current.geometry.attributes.position;
-            (pos.array as Float32Array).set(history);
-            pos.needsUpdate = true;
-        }
+        const pos = line.geometry.attributes.position;
+        (pos.array as Float32Array).set(history);
+        pos.needsUpdate = true;
     });
     /* eslint-enable react-hooks/immutability */
 
@@ -79,10 +80,7 @@ export const TimbreCloud = ({ features }: TimbreCloudProps) => {
                 <meshBasicMaterial color="#00f3ff" toneMapped={false} />
             </instancedMesh>
 
-            {/* @ts-expect-error R3F lowercase `line` element is valid at runtime but not in the JSX intrinsic types. */}
-            <line ref={lineRef} geometry={lineGeo}>
-                <lineBasicMaterial color="#ff00ff" transparent opacity={0.5} />
-            </line>
+            <primitive object={line} />
         </group>
     );
 };

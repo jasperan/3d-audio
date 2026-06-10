@@ -1,17 +1,43 @@
-import type { ChangeEvent, FC, RefObject } from 'react';
+import { useRef, useCallback } from 'react';
+import type { ChangeEvent, FC } from 'react';
 import type { AudioFeatures } from '../hooks/useAudioAnalyzer';
 
 interface OverlayProps {
-    onFileChange: (file: File) => void;
-    audioRef: RefObject<HTMLAudioElement | null>;
-    setAudioRef: (node: HTMLAudioElement | null) => void;
+    onUpload: (file: File) => void;
+    onAudioElement: (el: HTMLAudioElement | null) => void;
     features: AudioFeatures | null;
 }
 
-export const Overlay: FC<OverlayProps> = ({ onFileChange, audioRef, setAudioRef, features }) => {
+export const Overlay: FC<OverlayProps> = ({ onUpload, onAudioElement, features }) => {
+    const audioRef = useRef<HTMLAudioElement | null>(null);
+    const objectUrlRef = useRef<string | null>(null);
+
+    const setAudioRef = useCallback(
+        (node: HTMLAudioElement | null) => {
+            audioRef.current = node;
+            onAudioElement(node);
+        },
+        [onAudioElement]
+    );
+
+    const loadSource = useCallback((src: string) => {
+        const el = audioRef.current;
+        if (!el) return;
+        // Release any blob URL from a previous upload before swapping the source.
+        if (objectUrlRef.current) {
+            URL.revokeObjectURL(objectUrlRef.current);
+            objectUrlRef.current = null;
+        }
+        if (src.startsWith('blob:')) objectUrlRef.current = src;
+        el.src = src;
+        el.play();
+    }, []);
+
     const handleUpload = (e: ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (file) onFileChange(file);
+        if (!file) return;
+        loadSource(URL.createObjectURL(file));
+        onUpload(file);
     };
 
     return (
@@ -28,12 +54,7 @@ export const Overlay: FC<OverlayProps> = ({ onFileChange, audioRef, setAudioRef,
                         className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-neon-blue file:text-black hover:file:bg-cyan-400"
                     />
                     <button
-                        onClick={() => {
-                            if (audioRef.current) {
-                                audioRef.current.src = '/test.mp3';
-                                audioRef.current.play();
-                            }
-                        }}
+                        onClick={() => loadSource('/test.mp3')}
                         className="px-4 py-2 bg-neon-pink text-black font-bold rounded hover:bg-pink-400"
                     >
                         LOAD TEST

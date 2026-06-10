@@ -81,7 +81,7 @@ install_deps() {
 
     if grep -q '"build"' package.json 2>/dev/null; then
         info "Building project..."
-        $PKG_MGR run build 2>/dev/null && success "Build complete" || warn "Build step skipped"
+        $PKG_MGR run build && success "Build complete" || fail "Build failed"
     fi
 }
 
@@ -100,7 +100,8 @@ print_done() {
     echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo ""
     echo -e "  ${BOLD}Location:${NC}  $INSTALL_DIR"
-    echo -e "  ${BOLD}Start:${NC}    cd $INSTALL_DIR && $PKG_MGR start"
+    echo -e "  ${BOLD}Start:${NC}    cd $INSTALL_DIR && $PKG_MGR run dev"
+    echo -e "  ${BOLD}Open:${NC}     http://localhost:5173"
     echo ""
 }
 

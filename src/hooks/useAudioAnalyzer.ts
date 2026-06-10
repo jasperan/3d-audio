@@ -7,7 +7,6 @@ export interface AudioFeatures {
     spectralSpread: number;
     spectralFlux: number;
     rms: number;
-    mfcc: number[];
 }
 
 type AudioContextConstructor = typeof AudioContext;
@@ -15,7 +14,7 @@ interface WindowWithWebkitAudio extends Window {
     webkitAudioContext?: AudioContextConstructor;
 }
 
-const FEATURES = ['spectralCentroid', 'spectralSpread', 'spectralFlux', 'rms', 'mfcc'] as const;
+const FEATURES = ['spectralCentroid', 'spectralSpread', 'spectralFlux', 'rms'] as const;
 
 export const useAudioAnalyzer = (
     audioElement: HTMLMediaElement | null,
@@ -69,9 +68,22 @@ export const useAudioAnalyzer = (
         const tick = () => {
             const analyzer = analyzerRef.current;
             if (analyzer) {
-                const raw = analyzer.get([...FEATURES]);
-                if (raw) {
-                    setFeatures(raw as AudioFeatures);
+                // Meyda's typed result omits `spectralFlux`, so read through a
+                // loose numeric view and verify presence before publishing.
+                const raw = analyzer.get([...FEATURES]) as Partial<Record<(typeof FEATURES)[number], number>> | null;
+                if (
+                    raw &&
+                    raw.spectralCentroid != null &&
+                    raw.spectralSpread != null &&
+                    raw.spectralFlux != null &&
+                    raw.rms != null
+                ) {
+                    setFeatures({
+                        spectralCentroid: raw.spectralCentroid,
+                        spectralSpread: raw.spectralSpread,
+                        spectralFlux: raw.spectralFlux,
+                        rms: raw.rms,
+                    });
                 }
             }
             requestRef.current = requestAnimationFrame(tick);

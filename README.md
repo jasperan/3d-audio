@@ -3,7 +3,7 @@
 A sophisticated 3D audio visualizer built with **React**, **Three.js (React Three Fiber)**, and **Meyda**. This application maps real-time spectral features of audio (Centroid, Spread, Flux) to a 3D particle system, creating a dynamic "Timbre Space" visualization with sci-fi neon aesthetics.
 
 ## Features
-- **Real-Time DSP**: Uses Meyda.js to extract specific descriptors (Centroid, Spread, Flux, RMS, MFCCs) 60 times per second.
+- **Real-Time DSP**: Uses Meyda.js to extract specific descriptors (Centroid, Spread, Flux, RMS) 60 times per second.
 - **3D Particle Cloud**: Renders a history trail of 500+ particles using InstancedMesh for high performance.
 - **Timbre Mapping**:
   - **X-Axis**: Spectral Centroid (Brightness)
