@@ -1,14 +1,13 @@
-import { useRef, useCallback } from 'react';
+import { useRef, useCallback, useEffect } from 'react';
 import type { ChangeEvent, FC } from 'react';
 import type { AudioFeatures } from '../hooks/useAudioAnalyzer';
 
 interface OverlayProps {
-    onUpload: (file: File) => void;
     onAudioElement: (el: HTMLAudioElement | null) => void;
     features: AudioFeatures | null;
 }
 
-export const Overlay: FC<OverlayProps> = ({ onUpload, onAudioElement, features }) => {
+export const Overlay: FC<OverlayProps> = ({ onAudioElement, features }) => {
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const objectUrlRef = useRef<string | null>(null);
 
@@ -30,14 +29,24 @@ export const Overlay: FC<OverlayProps> = ({ onUpload, onAudioElement, features }
         }
         if (src.startsWith('blob:')) objectUrlRef.current = src;
         el.src = src;
-        el.play();
+        // Autoplay-policy rejections are expected; swallow them to avoid unhandled-rejection noise.
+        el.play().catch(() => {});
+    }, []);
+
+    // Revoke any outstanding blob URL when the overlay unmounts.
+    useEffect(() => {
+        return () => {
+            if (objectUrlRef.current) {
+                URL.revokeObjectURL(objectUrlRef.current);
+                objectUrlRef.current = null;
+            }
+        };
     }, []);
 
     const handleUpload = (e: ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
         loadSource(URL.createObjectURL(file));
-        onUpload(file);
     };
 
     return (

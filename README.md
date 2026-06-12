@@ -9,7 +9,7 @@ A sophisticated 3D audio visualizer built with **React**, **Three.js (React Thre
   - **X-Axis**: Spectral Centroid (Brightness)
   - **Y-Axis**: Spectral Spread (Bandwidth)
   - **Z-Axis**: Spectral Flux (Rate of change)
-- **Visual Polish**: UnrealBloomPass for neon glow effects and dynamic coloring.
+- **Visual Polish**: `Bloom` postprocessing for neon glow effects and dynamic coloring.
 - **Interactive UI**: Upload your own files or run the built-in test audio.
 
 ## Prerequisites
@@ -59,7 +59,7 @@ Automated testing was performed to verify the end-to-end functionality of the sy
 
 ### Test Protocol
 - **Environment**: Linux, Chrome (Headless/Automated)
-- **Audio Source**: `ana_vaporeto_queen_v5.mp3` (aliased as `/test.mp3`)
+- **Audio Source**: bundled demo clip `public/test.mp3` (served as `/test.mp3`)
 - **Action**:
   1. Navigate to application root.
   2. Trigger "LOAD TEST" button.

@@ -17,13 +17,13 @@ const DECAY = 0.95;
 export const TimbreCloud = ({ features }: TimbreCloudProps) => {
     const meshRef = useRef<THREE.InstancedMesh>(null);
 
-    // History buffer laid out as [x0, y0, z0, x1, y1, z1, ...].
-    const history = useMemo(() => new Float32Array(HISTORY_SIZE * 3), []);
     const dummy = useMemo(() => new THREE.Object3D(), []);
 
     // Build the trail line imperatively so its geometry buffer can be mutated
     // in place each frame. (`<line>` is valid at runtime but absent from R3F's
     // JSX intrinsic types, so a primitive avoids a type suppression.)
+    // Its position attribute, laid out as [x0, y0, z0, x1, y1, z1, ...], is the
+    // single source of truth for the trail; the instanced spheres read from it too.
     const line = useMemo(() => {
         const geo = new THREE.BufferGeometry();
         geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(HISTORY_SIZE * 3), 3));
@@ -31,10 +31,13 @@ export const TimbreCloud = ({ features }: TimbreCloudProps) => {
         return new THREE.Line(geo, material);
     }, []);
 
-    // history is a pre-allocated ring buffer intentionally mutated each frame.
+    // The geometry's position array is a pre-allocated shift buffer mutated each frame.
     /* eslint-disable react-hooks/immutability */
     useFrame(() => {
         if (!meshRef.current) return;
+
+        const pos = line.geometry.attributes.position;
+        const history = pos.array as Float32Array;
 
         // Shift every sample one slot toward the tail.
         history.copyWithin(3, 0, (HISTORY_SIZE - 1) * 3);
@@ -66,8 +69,6 @@ export const TimbreCloud = ({ features }: TimbreCloudProps) => {
         }
         meshRef.current.instanceMatrix.needsUpdate = true;
 
-        const pos = line.geometry.attributes.position;
-        (pos.array as Float32Array).set(history);
         pos.needsUpdate = true;
     });
     /* eslint-enable react-hooks/immutability */

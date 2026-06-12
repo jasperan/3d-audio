@@ -4,18 +4,13 @@ import { Overlay } from './components/Overlay';
 import { useAudioAnalyzer } from './hooks/useAudioAnalyzer';
 
 function App() {
-  const [audioFile, setAudioFile] = useState<File | null>(null);
   const [audioEl, setAudioEl] = useState<HTMLAudioElement | null>(null);
-  const features = useAudioAnalyzer(audioEl, !!audioFile);
+  const features = useAudioAnalyzer(audioEl, audioEl != null);
 
   return (
     <div className="w-full h-screen relative bg-sci-fi-bg">
       <Experience features={features} />
-      <Overlay
-        onUpload={setAudioFile}
-        onAudioElement={setAudioEl}
-        features={features}
-      />
+      <Overlay onAudioElement={setAudioEl} features={features} />
     </div>
   );
 }

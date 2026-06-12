@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Meyda from 'meyda';
-import type { MeydaAnalyzer } from 'meyda/dist/esm/meyda-wa';
+
+type MeydaAnalyzer = ReturnType<typeof Meyda.createMeydaAnalyzer>;
 
 export interface AudioFeatures {
     spectralCentroid: number;
@@ -62,8 +63,10 @@ export const useAudioAnalyzer = (
                     // Values are pulled in the rAF tick below to sync with the render frame.
                 },
             });
-            analyzerRef.current.start();
         }
+        // Start unconditionally so a cleanup-then-rerun (the effect's deps change
+        // while truthy) restarts the cached analyzer instead of polling a stopped one.
+        analyzerRef.current?.start();
 
         const tick = () => {
             const analyzer = analyzerRef.current;
