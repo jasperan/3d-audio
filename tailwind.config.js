@@ -10,7 +10,6 @@ export default {
                 'sci-fi-bg': '#050505',
                 'neon-blue': '#00f3ff',
                 'neon-pink': '#ff00ff',
-                'neon-green': '#00ff00',
             }
         },
     },

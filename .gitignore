@@ -41,7 +41,6 @@ AGENT_HARNESS_ANNEX.md
 SKILLS_EXECUTION_SUMMARY.md
 
 # Generated documentation
-docs/plans/
 docs/*.md
 !docs/README.md
 *_FEATURES.md
