@@ -26,6 +26,9 @@ export const useAudioAnalyzer = (
     const audioContextRef = useRef<AudioContext | null>(null);
     const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
     const requestRef = useRef<number | undefined>(undefined);
+    // Second tap on the same source, for the time-domain strip. Kept apart from
+    // Meyda so the visualiser never changes what the feature extractor sees.
+    const waveformRef = useRef<AnalyserNode | null>(null);
 
     useEffect(() => {
         if (!audioElement || !enabled) return;
@@ -52,6 +55,14 @@ export const useAudioAnalyzer = (
             }
         }
         const source = sourceRef.current;
+
+        if (source && !waveformRef.current) {
+            const analyser = ctx.createAnalyser();
+            analyser.fftSize = 2048;
+            analyser.smoothingTimeConstant = 0;
+            source.connect(analyser);
+            waveformRef.current = analyser;
+        }
 
         if (source && !analyzerRef.current) {
             analyzerRef.current = Meyda.createMeydaAnalyzer({
@@ -100,5 +111,5 @@ export const useAudioAnalyzer = (
         };
     }, [audioElement, enabled]);
 
-    return features;
+    return { features, waveform: waveformRef };
 };

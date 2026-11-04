@@ -1,6 +1,6 @@
 # 3D Timbre Space Visualizer
 
-A sophisticated 3D audio visualizer built with **React**, **Three.js (React Three Fiber)**, and **Meyda**. This application maps real-time spectral features of audio (Centroid, Spread, Flux) to a 3D particle system, creating a dynamic "Timbre Space" visualization with sci-fi neon aesthetics.
+A sophisticated 3D audio visualizer built with **React**, **Three.js (React Three Fiber)**, and **Meyda**. This application maps real-time spectral features of audio (Centroid, Spread, Flux) to a 3D particle system, creating a dynamic "Timbre Space" visualization drawn as one continuous path inside an engraved instrument frame.
 
 ## Features
 - **Real-Time DSP**: Uses Meyda.js to extract specific descriptors (Centroid, Spread, Flux, RMS) 60 times per second.
@@ -9,8 +9,8 @@ A sophisticated 3D audio visualizer built with **React**, **Three.js (React Thre
   - **X-Axis**: Spectral Centroid (Brightness)
   - **Y-Axis**: Spectral Spread (Bandwidth)
   - **Z-Axis**: Spectral Flux (Rate of change)
-- **Visual Polish**: `Bloom` postprocessing for neon glow effects and dynamic coloring.
-- **Interactive UI**: Upload your own files or run the built-in test audio.
+- **Instrument Frame**: Axis ticks and unit labels on the three edges of the plotted volume, plus a two-second level strip in the data panel.
+- **Interactive UI**: Upload or drop your own files, or run the built-in test audio.
 
 ## Prerequisites
 

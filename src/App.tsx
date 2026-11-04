@@ -5,12 +5,12 @@ import { useAudioAnalyzer } from './hooks/useAudioAnalyzer';
 
 function App() {
   const [audioEl, setAudioEl] = useState<HTMLAudioElement | null>(null);
-  const features = useAudioAnalyzer(audioEl, audioEl != null);
+  const { features, waveform } = useAudioAnalyzer(audioEl, audioEl != null);
 
   return (
-    <div className="w-full h-screen relative bg-sci-fi-bg">
+    <div className="relative h-screen w-full bg-ink-900">
       <Experience features={features} />
-      <Overlay onAudioElement={setAudioEl} features={features} />
+      <Overlay onAudioElement={setAudioEl} features={features} waveform={waveform} />
     </div>
   );
 }
