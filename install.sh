@@ -44,8 +44,11 @@ print_banner() {
 clone_repo() {
     if [ -d "$INSTALL_DIR" ]; then
         warn "Directory $INSTALL_DIR already exists"
+        local origin
+        origin="$(git -C "$INSTALL_DIR" remote get-url origin 2>/dev/null)" || origin=""
+        [ "$origin" = "$REPO_URL" ] || fail "$INSTALL_DIR exists but is not a clone of $REPO_URL; refusing to run its scripts. Remove it or set PROJECT_DIR."
         info "Pulling latest changes..."
-        (cd "$INSTALL_DIR" && git pull origin "$BRANCH" 2>/dev/null) || true
+        git -C "$INSTALL_DIR" pull origin "$BRANCH" || fail "git pull failed in $INSTALL_DIR"
     else
         info "Cloning repository..."
         git clone --depth 1 -b "$BRANCH" "$REPO_URL" "$INSTALL_DIR" || fail "Clone failed. Check your internet connection."
